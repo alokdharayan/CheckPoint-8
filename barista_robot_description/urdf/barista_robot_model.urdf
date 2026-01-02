@@ -1,0 +1,182 @@
+<?xml version="1.0"?>
+<robot name="barista_robot">
+
+  <!-- ================= BASE ================= -->
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <cylinder radius="0.178" length="0.155"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder radius="0.178" length="0.155"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="8.0"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.2" iyy="0.2" izz="0.3"
+               ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+  </link>
+
+  <!-- ================= STANDOFFS ================= -->
+  <link name="standoff_1"><visual><geometry><cylinder radius="0.01" length="0.2"/></geometry></visual></link>
+  <joint name="standoff_1_joint" type="fixed">
+    <parent link="base_link"/><child link="standoff_1"/>
+    <origin xyz="0.12 0.12 0.155"/>
+  </joint>
+
+  <link name="standoff_2"><visual><geometry><cylinder radius="0.01" length="0.2"/></geometry></visual></link>
+  <joint name="standoff_2_joint" type="fixed">
+    <parent link="base_link"/><child link="standoff_2"/>
+    <origin xyz="-0.12 0.12 0.155"/>
+  </joint>
+
+  <link name="standoff_3"><visual><geometry><cylinder radius="0.01" length="0.2"/></geometry></visual></link>
+  <joint name="standoff_3_joint" type="fixed">
+    <parent link="base_link"/><child link="standoff_3"/>
+    <origin xyz="-0.12 -0.12 0.155"/>
+  </joint>
+
+  <link name="standoff_4"><visual><geometry><cylinder radius="0.01" length="0.2"/></geometry></visual></link>
+  <joint name="standoff_4_joint" type="fixed">
+    <parent link="base_link"/><child link="standoff_4"/>
+    <origin xyz="0.12 -0.12 0.155"/>
+  </joint>
+
+  <!-- ================= TOP PLATE ================= -->
+  <link name="top_plate">
+    <visual>
+      <geometry>
+        <cylinder radius="0.15" length="0.02"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="top_plate_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="top_plate"/>
+    <origin xyz="0 0 0.355"/>
+  </joint>
+
+  <!-- ================= WHEELS ================= -->
+  <link name="left_wheel">
+    <visual><geometry><cylinder radius="0.0352" length="0.0206"/></geometry></visual>
+  </link>
+
+  <joint name="left_wheel_joint" type="continuous">
+    <parent link="base_link"/><child link="left_wheel"/>
+    <origin xyz="0 0.18 0.0352" rpy="0 1.5708 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <link name="right_wheel">
+    <visual><geometry><cylinder radius="0.0352" length="0.0206"/></geometry></visual>
+  </link>
+
+  <joint name="right_wheel_joint" type="continuous">
+    <parent link="base_link"/><child link="right_wheel"/>
+    <origin xyz="0 -0.18 0.0352" rpy="0 1.5708 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <!-- ================= CASTER ================= -->
+  <link name="caster_wheel">
+    <visual><geometry><sphere radius="0.02"/></geometry></visual>
+  </link>
+
+  <joint name="caster_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="caster_wheel"/>
+    <origin xyz="-0.15 0 0.02"/>
+  </joint>
+
+  <!-- ================= LASER ================= -->
+  <link name="laser_link">
+    <visual>
+      <geometry>
+        <mesh filename="package://barista_robot_description/meshes/hokuyo_utm_30lx.dae"
+              scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="laser_joint" type="fixed">
+    <parent link="top_plate"/>
+    <child link="laser_link"/>
+    <origin xyz="0.05 0 0.05"/>
+  </joint>
+
+  <gazebo reference="laser_link">
+    <sensor type="ray" name="laser_sensor">
+      <update_rate>10</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>720</samples>
+            <min_angle>-1.57</min_angle>
+            <max_angle>1.57</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.12</min>
+          <max>3.5</max>
+        </range>
+      </ray>
+      <plugin name="laser" filename="libgazebo_ros_ray_sensor.so">
+        <topicName>/scan</topicName>
+        <frameName>laser_link</frameName>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <!-- ================= DIFF DRIVE (FINAL FIX) ================= -->
+  <gazebo>
+    <plugin name="diff_drive" filename="libgazebo_ros_diff_drive.so">
+
+      <left_joint>left_wheel_joint</left_joint>
+      <right_joint>right_wheel_joint</right_joint>
+
+      <wheel_separation>0.36</wheel_separation>
+      <wheel_radius>0.0352</wheel_radius>
+
+      <cmd_vel_topic>/cmd_vel</cmd_vel_topic>
+      <odom_topic>/odom</odom_topic>
+
+      <robot_base_frame>base_link</robot_base_frame>
+      <publish_tf>true</publish_tf>
+      <publish_odom>true</publish_odom>
+      <update_rate>50</update_rate>
+
+    </plugin>
+  </gazebo>
+
+<gazebo>
+  <plugin name="diff_drive" filename="libgazebo_ros_diff_drive.so">
+
+    <ros>
+      <namespace>/</namespace>
+      <argument>cmd_vel:=/cmd_vel</argument>
+      <argument>odom:=/odom</argument>
+    </ros>
+
+    <left_joint>left_wheel_joint</left_joint>
+    <right_joint>right_wheel_joint</right_joint>
+
+    <wheel_separation>0.36</wheel_separation>
+    <wheel_radius>0.0352</wheel_radius>
+
+    <odom_frame>odom</odom_frame>
+    <robot_base_frame>base_link</robot_base_frame>
+
+    <publish_tf>true</publish_tf>
+    <publish_odom>true</publish_odom>
+    <update_rate>50</update_rate>
+
+  </plugin>
+</gazebo>
+
+
+</robot>

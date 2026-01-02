@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<robot name="barista_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ===== ARGUMENT ===== -->
+  <xacro:arg name="include_laser" default="true"/>
+
+  <!-- ===== INCLUDES ===== -->
+  <xacro:include filename="$(find barista_robot_description)/xacro/wheel.xacro"/>
+  <xacro:include filename="$(find barista_robot_description)/xacro/standoff.xacro"/>
+  <xacro:include filename="$(find barista_robot_description)/xacro/cup_holder_tray.xacro"/>
+  <xacro:include filename="$(find barista_robot_description)/xacro/laser_scanner.xacro"/>
+
+  <!-- ===== BASE ===== -->
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <cylinder radius="0.178" length="0.155"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <!-- ===== WHEELS ===== -->
+  <xacro:wheel name="left_wheel"  x="0" y="0.18"  z="0.0352"/>
+  <xacro:wheel name="right_wheel" x="0" y="-0.18" z="0.0352"/>
+
+  <!-- ===== STANDOFFS ===== -->
+  <xacro:standoff name="standoff_1" x="0.12"  y="0.12"  z="0.155" height="0.2"/>
+  <xacro:standoff name="standoff_2" x="-0.12" y="0.12"  z="0.155" height="0.2"/>
+  <xacro:standoff name="standoff_3" x="-0.12" y="-0.12" z="0.155" height="0.2"/>
+  <xacro:standoff name="standoff_4" x="0.12"  y="-0.12" z="0.155" height="0.2"/>
+
+  <!-- ===== TOP PLATE ===== -->
+  <xacro:cup_holder_tray/>
+
+  <!-- ===== LASER (CONDITIONAL) ===== -->
+  <xacro:if value="$(arg include_laser)">
+    <xacro:laser_scanner/>
+  </xacro:if>
+
+</robot>
